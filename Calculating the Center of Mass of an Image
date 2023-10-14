@@ -1,0 +1,85 @@
+import numpy as np
+import cv2
+
+img=cv2.imread('S-29.png')
+
+pointnumb=0;
+xtotal=0
+ytotal=0
+xtemp=0
+ytemp=0
+for y in img:
+    for x in y:
+        if x[0]==54:
+            if x[1]==67:
+                if x[2]==244:
+                    pointnumb=pointnumb+1
+                    xtotal=xtotal+xtemp
+                    ytotal=ytotal+ytemp
+        xtemp=xtemp+1
+    xtemp=0
+    ytemp=ytemp+1
+
+print(xtotal/pointnumb)
+print(ytotal/pointnumb)
+
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+xtotal=0
+ytotal=0
+xtemp=0
+ytemp=0
+
+
+for y in img:
+    for x in y:
+        gray[ytemp,xtemp ] = 0
+        if x[0]==136:
+            if x[1]==150:
+                if x[2]==0:
+                    xtotal=xtotal+xtemp
+                    ytotal=ytotal+ytemp
+                    gray[ytemp,xtemp]=200
+
+        xtemp=xtemp+1
+    xtemp=0
+    ytemp=ytemp+1
+
+
+binary = cv2.threshold(gray, 0, 180, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+
+cv2.imshow("dd",binary)
+cv2.waitKey(0)
+
+ret, labels = cv2.connectedComponents(binary)
+ttt=0
+tn=0
+for label in range(1,ret):
+
+    mask = np.array(labels, dtype=np.uint8)
+    mask[labels == label] = 255
+    mask[mask != 255] = 0
+
+    totalx=0
+    totaly=0
+    tempx=0
+    tempy=0
+    npx=0
+    for i in mask:
+        for j in i:
+            ttt=ttt+j
+            if j==255:
+                npx=npx+1
+                totalx = totalx+tempx
+                totaly = totaly+tempy
+            tempx = tempx + 1
+        tempy=tempy+1
+        tempx=0
+
+    pix=(ttt/255)
+    if pix>10000:
+        print("x cm w " + str(totalx / npx))
+        print("y cm w " + str(totaly / npx))
+        cv2.imshow('component', mask)
+        cv2.waitKey(0)
+    ttt=0
+    tn=0
